@@ -14,9 +14,15 @@ namespace ArcGIS.ServiceModel.Operation
         /// <summary>
         /// Search for hosted feature services on ArcGIS Online
         /// </summary>
+        /// <param name="orgid">The organisation id</param>
         /// <param name="username">The name of the user (owner) of the feature services</param>
-        public SearchHostedFeatureServices(string username)
-            : base(string.Format("owner:{0} AND (type:\"Feature Service\")", username))
+        /// public, private, org, or shared.
+        public SearchHostedFeatureServices(string orgid, string username,string tags)
+            : base(string.Format(tags + " orgid:{0} (access:account OR access:org OR access:shared OR access:public OR access:private)  (type:(\"Feature Collection\" OR \"Feature Service\" OR \"Stream Service\" OR \"WFS\"))", orgid,username))
+        { }
+
+        public SearchHostedFeatureServices(string tags)
+              : base("type:\"Feature Service\" ")
         { }
 
         public SearchHostedFeatureServices()
@@ -131,6 +137,9 @@ namespace ArcGIS.ServiceModel.Operation
     {
         [DataMember(Name = "id")]
         public string Id { get; set; }
+
+        [DataMember(Name = "title")]
+        public string Title { get; set; }
 
         [DataMember(Name = "name")]
         public string Name { get; set; }

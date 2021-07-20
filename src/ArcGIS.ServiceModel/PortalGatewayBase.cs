@@ -6,6 +6,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Net.Http;
     using System.Net.Http.Headers;
     using System.Threading;
@@ -32,7 +33,8 @@
         /// <param name="httpClientFunc">Function that resolves to a HTTP client used to send requests</param>
         public PortalGatewayBase(string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null)
             : this(() => LogProvider.For<PortalGatewayBase>(), rootUrl, serializer, tokenProvider, httpClientFunc)
-        { }
+        {           
+        }
 
         internal PortalGatewayBase(Func<ILog> log, string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null)
         {
@@ -128,6 +130,8 @@
             return Get<ServerInfoResponse>(new ServerInfo(), ct);
         }
 
+       
+
         /// <summary>
         /// Call the query operation
         /// </summary>
@@ -137,7 +141,7 @@
         /// <returns>The matching features for the query</returns>
         public virtual Task<QueryResponse<T>> Query<T>(Query queryOptions, CancellationToken ct = default(CancellationToken)) where T : IGeometry
         {
-            return Get<QueryResponse<T>, Query>(queryOptions, ct);
+            return Post<QueryResponse<T>, Query>(queryOptions, ct);
         }
 
         /// <summary>
@@ -148,8 +152,21 @@
         /// <returns>The number of results that match the query</returns>
         public virtual Task<QueryForCountResponse> QueryForCount(QueryForCount queryOptions, CancellationToken ct = default(CancellationToken))
         {
-            return Get<QueryForCountResponse, QueryForCount>(queryOptions, ct);
+            return  Post<QueryForCountResponse, QueryForCount>(queryOptions, ct);
         }
+
+        /// <summary>
+        /// Call the self operation to describe a portal or ArcGIS Online site
+        /// </summary>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns>A portal self response, describing the details of the portal</returns>
+        public Task<SelfResponse> DescribeSelf(CancellationToken ct = default(CancellationToken))
+        {
+            var self = new Self(new ArcGISOnlineEndpoint(Operations.Self));
+            return Get<SelfResponse, Self>(self, ct);
+        }
+
+   
 
         /// <summary>
         /// Call the extent operation for the query resource.
@@ -159,7 +176,7 @@
         /// <returns>The number of results that match the query and the bounding extent</returns>
         public virtual Task<QueryForExtentResponse> QueryForExtent(QueryForExtent queryOptions, CancellationToken ct = default(CancellationToken))
         {
-            return Get<QueryForExtentResponse, QueryForExtent>(queryOptions, ct);
+            return Post<QueryForExtentResponse, QueryForExtent>(queryOptions, ct);
         }
 
         /// <summary>
@@ -170,7 +187,7 @@
         /// <returns>The Object IDs for the features that match the query</returns>
         public virtual Task<QueryForIdsResponse> QueryForIds(QueryForIds queryOptions, CancellationToken ct = default(CancellationToken))
         {
-            return Get<QueryForIdsResponse, QueryForIds>(queryOptions, ct);
+            return Post<QueryForIdsResponse, QueryForIds>(queryOptions, ct);
         }
 
         /// <summary>
@@ -235,6 +252,38 @@
             if (ct.IsCancellationRequested) return null;
 
             var result = features.UpdateGeometries<T>(buffered.Geometries);
+            if (result.First().Geometry.SpatialReference == null) result.First().Geometry.SpatialReference = spatialReference;
+            return result;
+        }
+
+
+        /// <summary>
+        /// Buffer the list of geometries passed in using the GeometryServer
+        /// </summary>
+        /// <typeparam name="T">The type of the geometries</typeparam>
+        /// <param name="features">A collection of features which will have their geometries buffered</param>
+        /// <param name="spatialReference">The spatial reference of the geometries</param>
+        /// <param name="distance">Distance in meters to buffer the geometries by</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns>The corresponding features with the newly buffered geometries</returns>
+        public virtual async Task<List<Feature<Polygon>>> BufferFeatures<T>(List<Feature<T>> features, SpatialReference spatialReference, double distance, CancellationToken ct = default(CancellationToken)) where T : IGeometry
+        {
+            var op = new BufferGeometry<T>(GeometryServiceEndpoint, features, spatialReference, distance);
+            var buffered = await Post<GeometryOperationResponse<Polygon>, BufferGeometry<T>>(op, ct).ConfigureAwait(false);
+
+            if (ct.IsCancellationRequested) return null;
+
+            var bufferFeatures = new List<Feature<Polygon>>();
+            for (int i = 0; i < features.Count; i++)
+            {
+                bufferFeatures.Add(new Feature<Polygon>()
+                {
+                    Attributes = features[i].Attributes,
+                    Geometry = buffered.Geometries[i]
+                });
+            }
+
+            var result = bufferFeatures;
             if (result.First().Geometry.SpatialReference == null) result.First().Geometry.SpatialReference = spatialReference;
             return result;
         }
@@ -308,7 +357,6 @@
         protected async Task<T> Get<T>(string url, CancellationToken ct) where T : IPortalResponse
         {
             Guard.AgainstNullArgument("url", url);
-
             var token = await CheckGenerateToken(ct).ConfigureAwait(false);
             if (ct.IsCancellationRequested) return default(T);
 
@@ -316,8 +364,15 @@
             if (token != null && !string.IsNullOrWhiteSpace(token.Value) && !url.Contains("token="))
             {
                 url += (url.Contains("?") ? "&" : "?") + "token=" + token.Value;
+                if (_httpClient == null) {
+                    _httpClient = HttpClientFactory.Get();
+                }
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token.Value);
                 if (token.AlwaysUseSsl) url = url.Replace("http:", "https:");
+            }
+
+            if (url.Contains("sharing/sharing") == true) {
+                url = url.Replace("sharing/sharing", "sharing");
             }
 
             Uri uri;
@@ -336,6 +391,11 @@
             string resultString = string.Empty;
             try
             {
+                if (_httpClient == null)
+                {
+                    _httpClient = HttpClientFactory.Get();
+                }
+               
                 HttpResponseMessage response = await _httpClient.GetAsync(uri, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
@@ -376,6 +436,10 @@
             if (!parameters.ContainsKey("token") && token != null && !string.IsNullOrWhiteSpace(token.Value))
             {
                 parameters.Add("token", token.Value);
+                if (_httpClient == null)
+                {
+                    _httpClient = HttpClientFactory.Get();
+                }
                 _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(token.Value);
                 if (token.AlwaysUseSsl) url = url.Replace("http:", "https:");
             }
@@ -394,7 +458,7 @@
                     tempContent.Add(new StringContent(keyValuePair.Value), keyValuePair.Key);
                 }
                 content = tempContent;
-            }
+        }
 
             if (CancelPendingRequests)
             {
@@ -443,4 +507,6 @@
             return "?" + string.Join("&", dictionary.Keys.Select(k => string.Format("{0}={1}", k, dictionary[k].UrlEncode())));
         }
     }
+
+    
 }

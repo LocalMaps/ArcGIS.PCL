@@ -23,6 +23,19 @@
     }
 
     [DataContract]
+    public class ServiceTableDescription : ArcGISServerOperation
+    {
+        /// <summary>
+        /// Request for the details of an ArcGIS Server service table
+        /// </summary>
+        /// <param name="serviceEndpoint"></param>
+        public ServiceTableDescription(IEndpoint serviceEndpoint)
+        {
+            Endpoint = serviceEndpoint;
+        }
+    }
+
+    [DataContract]
     public class ServiceLayerDescriptionResponse : PortalResponse
     {
         [DataMember(Name = "currentVersion")]
@@ -50,7 +63,7 @@
         public string GeometryTypeString { get; set; }
 
         [IgnoreDataMember]
-        public Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
+        public System.Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
 
         [DataMember(Name = "copyrightText")]
         public string CopyrightText { get; set; }
@@ -62,10 +75,10 @@
         public List<RelatedLayer> SubLayers { get; set; }
 
         [DataMember(Name = "minScale")]
-        public int MinimumScale { get; set; }
+        public double? MinimumScale { get; set; }
 
         [DataMember(Name = "maxScale")]
-        public int MaximumScale { get; set; }
+        public double? MaximumScale { get; set; }
 
         [DataMember(Name = "defaultVisibility")]
         public bool DefaultVisibility { get; set; }
@@ -156,7 +169,87 @@
 
         [DataMember(Name = "typeIdField")]
         public string TypeIdField { get; set; }
+
+        [DataMember(Name = "subTypeIdField")]
+        public string subTypeIdField { get; set; }
+
+        [DataMember(Name ="relationships")]
+        public List<Relationship> Relationships { get; set; }
+
+        [DataMember(Name = "spatialReference")]
+        public SpatialReference SpatialReference { get; set; }
     }
+
+    [DataContract]
+    public class ServiceTableDescriptionResponse : PortalResponse
+    {
+        [DataMember(Name = "currentVersion")]
+        public double CurrentVersion { get; set; }
+
+        [DataMember(Name = "id")]
+        public int Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "type")]
+        public string Type { get; set; }
+        
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        [DataMember(Name = "hasAttachments")]
+        public bool HasAttachments { get; set; }
+
+        [DataMember(Name = "htmlPopupType")]
+        public string HtmlPopupType { get; set; }
+
+        [DataMember(Name = "displayField")]
+        public string DisplayField { get; set; }
+
+        [DataMember(Name = "hasLabels")]
+        public bool? HasLabels { get; set; }
+
+        [DataMember(Name = "capabilities")]
+        public string CapabilitiesValue { get; set; }
+
+        [IgnoreDataMember]
+        public List<string> Capabilities { get { return string.IsNullOrWhiteSpace(CapabilitiesValue) ? null : CapabilitiesValue.Split(',').ToList(); } }
+
+        [DataMember(Name = "maxRecordCount")]
+        public int MaximumRecordCount { get; set; }
+
+        [DataMember(Name = "supportsStatistics")]
+        public bool? SupportsStatistics { get; set; }
+
+        [DataMember(Name = "supportsAdvancedQueries")]
+        public bool? SupportsAdvancedQueries { get; set; }
+
+        [DataMember(Name = "supportedQueryFormats")]
+        public string SupportedQueryFormatsValue { get; set; }
+
+        [IgnoreDataMember]
+        public List<string> SupportedQueryFormats { get { return string.IsNullOrWhiteSpace(SupportedQueryFormatsValue) ? null : SupportedQueryFormatsValue.Split(',').ToList(); } }
+
+        [DataMember(Name = "isDataVersioned")]
+        public bool? IsDataVersioned { get; set; }
+
+        [DataMember(Name = "fields")]
+        public IEnumerable<Field> Fields { get; set; }
+
+        [DataMember(Name = "advancedQueryCapabilities")]
+        public AdvancedQueryCapabilities AdvancedQueryCapabilities { get; set; }
+
+        [DataMember(Name = "useStandardizedQueries")]
+        public bool? UseStandardizedQueries { get; set; }
+
+        [DataMember(Name = "supportsRollbackOnFailures")]
+        public bool? SupportsRollbackOnFailures { get; set; }
+
+        [DataMember(Name = "typeIdField")]
+        public string TypeIdField { get; set; }
+    }
+
 
     [DataContract]
     public class RelatedLayer
@@ -191,5 +284,30 @@
 
         [DataMember(Name = "supportsQueryWithDistance")]
         public bool SupportsQueryWithDistance { get; set; }
+    }
+
+    [DataContract]
+    public class Relationship
+    {
+        [DataMember(Name = "id")]
+        public int Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "relatedTableId")]
+        public int RelatedTableId { get; set; }
+
+        [DataMember(Name = "role")]
+        public string Role { get; set; }
+
+        [DataMember(Name = "keyField")]
+        public string KeyField { get; set; }
+
+        [DataMember(Name = "cardinality")]
+        public string Cardinality { get; set; }
+
+        [DataMember(Name = "composite")]
+        public bool Composite { get; set; }
     }
 }

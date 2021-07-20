@@ -38,15 +38,55 @@
         /// <param name="username">User whose content to search for, if not specified then the user
         /// from the <see cref="ITokenProvider" />  for this gateway will be used.</param>
         /// <returns>The discovered hosted feature services</returns>
-        public Task<SearchHostedFeatureServicesResponse> DescribeSite(CancellationToken ct = default(CancellationToken), string username = "")
+        public Task<SearchHostedFeatureServicesResponse> DescribeSite(CancellationToken ct = default(CancellationToken), string username = "", string[] searchTags = null )
         {
+            //In order to find all the feature layers in the org, need to get the organisation id.
+
+            var portal = DescribeSelf(ct).Result;
+            var orgId = portal.id;
+
             if (string.IsNullOrWhiteSpace(username) && TokenProvider != null)
                 username = TokenProvider.UserName;
 
-            var search = string.IsNullOrWhiteSpace(username)
-                ? new SearchHostedFeatureServices()
-                : new SearchHostedFeatureServices(username);
+            var tags = "";
+            if (searchTags != null) {
+                foreach (var item in searchTags)
+                {
+                    tags += string.Format(" tags:\"{0}\" ", item);
+                }
+            }
+
+            var search = string.IsNullOrWhiteSpace(orgId)
+                ? new SearchHostedFeatureServices() { StartIndex = 0, NumberToReturn = 200 }
+                : new SearchHostedFeatureServices(orgId, username,tags) { StartIndex = 0, NumberToReturn = 200 };
             return Get<SearchHostedFeatureServicesResponse, SearchHostedFeatureServices>(search, ct);
         }
+
+        /// <summary>
+        /// Returns an item object from a portal
+        /// </summary>
+        /// <param name="itemId">The item id to get</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns></returns>
+        public Task<SearchItemResponse> GetItem(string itemId, CancellationToken ct = default(CancellationToken))
+        {
+            return Get<SearchItemResponse,SearchItem>(new SearchItem(itemId), ct);
+        }
+
+        /// <summary>
+        /// Returns an item object from a portal
+        /// </summary>
+        /// <param name="itemId">The item id to get</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns></returns>
+        public Task<SearchItemResponse> GetGeocoders(CancellationToken ct = default(CancellationToken))
+        {
+            var portal = DescribeSelf(ct).Result;
+            var orgId = portal.id;
+            return Get<SearchItemResponse, SearchGeocoders>(new SearchGeocoders(orgId), ct);
+        }
+
+
+
     }
 }

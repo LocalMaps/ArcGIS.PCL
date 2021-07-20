@@ -56,6 +56,10 @@
 
         public string BuildAbsoluteUrl(string rootUrl)
         {
+            if (rootUrl.LastIndexOf('/') != rootUrl.Length - 1) {
+                rootUrl = rootUrl + "/";
+            }
+
             if (string.IsNullOrWhiteSpace(rootUrl)) throw new ArgumentNullException(nameof(rootUrl), "rootUrl is null.");
             return !RelativeUrl.Contains(rootUrl.Substring(6)) && !RelativeUrl.Contains(rootUrl.Substring(6))
                        ? rootUrl + RelativeUrl

@@ -85,6 +85,9 @@
 
         [DataMember(Name = "layers")]
         public List<LayerDetails> Layers { get; set; }
+
+        [DataMember(Name = "tables")]
+        public List<TableDetails> Tables { get; set; }
     }
 
     [DataContract]
@@ -109,6 +112,9 @@
         [DataMember(Name = "name")]
         public string Name { get; set; }
 
+        [DataMember(Name = "geometryType")]
+        public string GeometryType { get; set; }
+
         [DataMember(Name = "parentLayerId")]
         public int? ParentLayerId { get; set; }
 
@@ -127,4 +133,19 @@
         [IgnoreDataMember]
         public bool IsGroupLayer { get { return SubLayerIds != null && SubLayerIds.Any() && SubLayerIds.FirstOrDefault() > -1; } }
     }
+
+    [DataContract]
+    public class TableDetails
+    {
+        [DataMember(Name = "id")]
+        public int Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+   
+    }
+
+    
+
 }

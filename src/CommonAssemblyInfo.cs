@@ -9,7 +9,11 @@ using System.Reflection;
 [assembly: AssemblyInformationalVersionAttribute("5.9.0")]
 namespace System {
     internal static class AssemblyVersionInformation {
-        internal const string Version = "5.9.0";
-        internal const string InformationalVersion = "5.9.0";
+        internal const System.String AssemblyCompany = "";
+        internal const System.String AssemblyCopyright = "Copyright Dave Timmins (c) 2013";
+        internal const System.String AssemblyProduct = "ArcGIS REST API ServiceModel PCL";
+        internal const System.String AssemblyVersion = "5.9.0";
+        internal const System.String AssemblyFileVersion = "5.9.0";
+        internal const System.String AssemblyInformationalVersion = "5.9.0";
     }
 }

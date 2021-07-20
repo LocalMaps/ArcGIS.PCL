@@ -76,6 +76,9 @@ namespace ArcGIS.ServiceModel.Operation
     [DataContract]
     public class ServiceDescription
     {
+        [DataMember(Name = "id")]
+        public string Id  { get { return ""; }  }
+
         [DataMember(Name = "name")]
         public string Name { get; set; }
 

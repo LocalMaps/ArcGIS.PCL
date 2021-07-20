@@ -14,6 +14,7 @@
     using System.Threading.Tasks;
     using Xunit;
     using Xunit.Abstractions;
+    using Type = System.Type;
 
     public class ArcGISGateway : PortalGateway
     {

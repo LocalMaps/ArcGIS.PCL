@@ -2,6 +2,7 @@
 {
     using Common;
     using System;
+    using System.Text;
 
     public static class StringExtensions
     {
@@ -45,9 +46,31 @@
             return rootUrl.Replace("/rest/services", "") + "/";
         }
 
-        public static string UrlEncode(this string text)
+        //public static string UrlEncode(this string text)
+        //{
+        //    return string.IsNullOrWhiteSpace(text) ? text : Uri.EscapeDataString(text);
+        //}
+
+        public static string UrlEncode(this string input)
         {
-            return string.IsNullOrWhiteSpace(text) ? text : Uri.EscapeDataString(text);
+            int limit = 65519;
+
+            StringBuilder sb = new StringBuilder();
+            int loops = input.Length / limit;
+
+            for (int i = 0; i <= loops; i++)
+            {
+                if (i < loops)
+                {
+                    sb.Append(Uri.EscapeDataString(input.Substring(limit * i, limit)));
+                }
+                else
+                {
+                    sb.Append(Uri.EscapeDataString(input.Substring(limit * i)));
+                }
+            }
+
+            return sb.ToString();
         }
 
         /// <summary>

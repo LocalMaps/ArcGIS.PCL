@@ -167,6 +167,9 @@ namespace ArcGIS.ServiceModel.Operation
         [DataMember(Name = "returnM")]
         public bool ReturnM { get; set; }
 
+
+
+
         /// <summary>
         /// GeoDatabase version to query.
         /// </summary>
@@ -239,7 +242,7 @@ namespace ArcGIS.ServiceModel.Operation
         public string GeometryTypeString { get; set; }
 
         [IgnoreDataMember]
-        public Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
+        public System.Type GeometryType { get { return GeometryTypes.ToTypeMap[GeometryTypeString](); } }
 
         [DataMember(Name = "features")]
         public IEnumerable<Feature<T>> Features { get; set; }
@@ -282,6 +285,69 @@ namespace ArcGIS.ServiceModel.Operation
 
         [DataMember(Name = "length")]
         public int? Length { get; set; }
+
+        [DataMember(Name = "domain")]
+        public Domain Domain { get; set; }
+    }
+
+    [DataContract]
+    public class Domain
+    {
+        [DataMember(Name = "type")]
+        public string Type { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "codedValues")]
+        public List<CodedDomainValue> CodedValues { get; set; }
+
+        [DataMember(Name = "range")]
+        public List<double> range { get; set; }
+
+
+    }
+
+    [DataContract]
+    public class CodedDomainValue
+    {
+        [DataMember(Name = "code")]
+        public string Code { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+    }
+
+    [DataContract]
+    public class SubType
+    {
+        [DataMember(Name = "domains")]
+        public Dictionary<string,Domain> Domains { get; set; }
+      
+        [DataMember(Name = "code")]
+        public  int Code { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
+        [DataMember(Name = "defaultValues")]
+        public Dictionary<string,object> DefaultValues { get; set; }
+
+    }
+
+    [DataContract]
+    public class Type
+    {
+        [DataMember(Name = "domains")]
+        public Dictionary<string, Domain> Domains { get; set; }
+
+        [DataMember(Name = "id")]
+        public int Id { get; set; }
+
+        [DataMember(Name = "name")]
+        public string Name { get; set; }
+
     }
 
     /// <summary>
@@ -356,7 +422,7 @@ namespace ArcGIS.ServiceModel.Operation
 
     public static class GeometryTypes
     {
-        internal readonly static Dictionary<Type, Func<string>> TypeMap = new Dictionary<Type, Func<string>>
+        internal readonly static Dictionary<System.Type, Func<string>> TypeMap = new Dictionary<System.Type, Func<string>>
         {
             { typeof(Point), () => GeometryTypes.Point },
             { typeof(MultiPoint), () => GeometryTypes.MultiPoint },
@@ -365,7 +431,7 @@ namespace ArcGIS.ServiceModel.Operation
             { typeof(Polyline), () => GeometryTypes.Polyline }
         };
 
-        internal readonly static Dictionary<string, Func<Type>> ToTypeMap = new Dictionary<string, Func<Type>>
+        internal readonly static Dictionary<string, Func<System.Type>> ToTypeMap = new Dictionary<string, Func<System.Type>>
         {
             { GeometryTypes.Point, () => typeof(Point) },
             { GeometryTypes.MultiPoint, () => typeof(MultiPoint) },
@@ -396,7 +462,7 @@ namespace ArcGIS.ServiceModel.Operation
 
     public static class FieldDataTypes
     {
-        public readonly static Dictionary<Type, Func<string>> FieldDataTypeMap = new Dictionary<Type, Func<string>>
+        public readonly static Dictionary<System.Type, Func<string>> FieldDataTypeMap = new Dictionary<System.Type, Func<string>>
         {
             { typeof(string), () => FieldDataTypes.EsriString },
             { typeof(int), () => FieldDataTypes.EsriInteger },

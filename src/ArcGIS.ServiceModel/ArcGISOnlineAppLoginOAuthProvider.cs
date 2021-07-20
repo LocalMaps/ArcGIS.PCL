@@ -97,7 +97,7 @@
             string resultString = string.Empty;
             try
             {
-                HttpResponseMessage response = await _httpClient.PostAsync(RootUrl, content, ct).ConfigureAwait(false);
+               HttpResponseMessage response = await _httpClient.PostAsync(RootUrl, content, ct).ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 resultString = await response.Content.ReadAsStringAsync().ConfigureAwait(false);

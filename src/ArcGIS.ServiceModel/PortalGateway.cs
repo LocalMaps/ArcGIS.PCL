@@ -33,6 +33,17 @@
             return result;
         }
 
+        /// <summary>
+        /// Returns an item object from a portal
+        /// </summary>
+        /// <param name="itemId">The item id to get</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns></returns>
+        public Task<SearchItemResponse> GetItem(string itemId, CancellationToken ct = default(CancellationToken))
+        {
+            return Get<SearchItemResponse>(new SearchItem(itemId), ct);
+        }
+
         async Task<List<SiteFolderDescription>> DescribeEndpoint(IEndpoint endpoint, CancellationToken ct = default(CancellationToken))
         {
             SiteFolderDescription folderDescription = null;
@@ -80,6 +91,16 @@
                 return result;
             }
             if (ct.IsCancellationRequested) return result;
+
+            if (folderDescription == null) { 
+                folderDescription = new SiteFolderDescription(){
+                    Error = new ArcGISError
+                    {
+                        Message = "Exception for Get SiteFolderDescription at path " + endpoint.RelativeUrl,
+                        Details = new[] {"Unable to access folder" }
+                    }
+                };
+            }
 
             folderDescription.Path = endpoint.RelativeUrl;
             result.Add(folderDescription);
@@ -152,6 +173,19 @@
             Guard.AgainstNullArgument(nameof(layerEndpoint), layerEndpoint);
 
             return Get<ServiceLayerDescriptionResponse>(new ServiceLayerDescription(layerEndpoint), ct);
+        }
+
+        /// <summary>
+        /// Return the Table description details for the requested endpoint
+        /// </summary>
+        /// <param name="layerEndpoint"></param>
+        /// <param name="ct"></param>
+        /// <returns>The layer description details</returns>
+        public virtual Task<ServiceTableDescriptionResponse> DescribeTable(IEndpoint layerEndpoint, CancellationToken ct = default(CancellationToken))
+        {
+            Guard.AgainstNullArgument(nameof(layerEndpoint), layerEndpoint);
+
+            return Get<ServiceTableDescriptionResponse>(new ServiceTableDescription(layerEndpoint), ct);
         }
 
         /// <summary>

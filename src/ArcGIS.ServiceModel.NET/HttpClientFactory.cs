@@ -13,19 +13,26 @@ namespace ArcGIS.ServiceModel
         {
             Get = (() =>
             {
-                var httpClientHandler = new HttpClientHandler();
-                if (httpClientHandler.SupportsAutomaticDecompression)
-                    httpClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
-                if (httpClientHandler.SupportsProxy) httpClientHandler.UseProxy = true;
-                if (httpClientHandler.SupportsRedirectConfiguration) httpClientHandler.AllowAutoRedirect = true;
-                httpClientHandler.PreAuthenticate = true;
+                try
+                {
+                    var httpClientHandler = new HttpClientHandler();
+                    if (httpClientHandler.SupportsAutomaticDecompression)
+                        httpClientHandler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+                    if (httpClientHandler.SupportsProxy) httpClientHandler.UseProxy = true;
+                    if (httpClientHandler.SupportsRedirectConfiguration) httpClientHandler.AllowAutoRedirect = true;
+                    httpClientHandler.PreAuthenticate = true;
 
-                var httpClient = new HttpClient(httpClientHandler);
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jsonp"));
-                httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
+                    var httpClient = new HttpClient(httpClientHandler);
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/jsonp"));
+                    httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("text/html"));
 
-                return httpClient;
+                    return httpClient;
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
             });
         }
     }

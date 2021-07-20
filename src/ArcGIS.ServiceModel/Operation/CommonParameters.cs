@@ -22,6 +22,7 @@ namespace ArcGIS.ServiceModel.Operation
         public const string ServiceReport = "services/{0}/report";
         public const string ArcGISOnlineSearch = "search";
         public const string ServerInfoRoute = "rest/info";
+        public const string Self = "portals/self";
     }
 
     /// <summary>
