@@ -11,10 +11,11 @@
     using System.Net.Http.Headers;
     using System.Threading;
     using System.Threading.Tasks;
+using static ArcGIS.ServiceModel.Operation.QueryRelatedRecords;
 
-    /// <summary>
-    /// ArcGIS Server gateway base. Contains code to make HTTP(S) calls and operations available to all gateway types
-    /// </summary>
+/// <summary>
+/// ArcGIS Server gateway base. Contains code to make HTTP(S) calls and operations available to all gateway types
+/// </summary>
     public class PortalGatewayBase : IPortalGateway, IDisposable
     {
         internal const string AGOPortalUrl = "https://www.arcgis.com/sharing/rest/";
@@ -153,6 +154,29 @@
         public virtual Task<QueryForCountResponse> QueryForCount(QueryForCount queryOptions, CancellationToken ct = default(CancellationToken))
         {
             return  Post<QueryForCountResponse, QueryForCount>(queryOptions, ct);
+        }
+
+        /// <summary>
+        /// Call the query related records operation
+        /// </summary>
+        /// <typeparam name="T">The geometry type for the result set</typeparam>
+        /// <param name="queryOptions">Query filter parameters</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns>The matching features for the query</returns>
+        public virtual Task<QueryRelatedRecordsResponse<T>> QueryRelatedRecords<T>(QueryRelatedRecords queryOptions, CancellationToken ct = default(CancellationToken)) where T : IGeometry
+        {
+            return Post<QueryRelatedRecordsResponse<T>, QueryRelatedRecords>(queryOptions, ct);
+        }
+
+        /// <summary>
+        /// Call the count operation for the query resource.
+        /// </summary>
+        /// <param name="queryOptions">Query filter parameters</param>
+        /// <param name="ct">Optional cancellation token to cancel pending request</param>
+        /// <returns>The number of results that match the query</returns>
+        public virtual Task<QueryRelatedRecordsForCountResponse> QueryRelatedRecordsForCount(QueryRelatedRecordsForCount queryOptions, CancellationToken ct = default(CancellationToken))
+        {
+            return Post<QueryRelatedRecordsForCountResponse, QueryRelatedRecords>(queryOptions, ct);
         }
 
         /// <summary>

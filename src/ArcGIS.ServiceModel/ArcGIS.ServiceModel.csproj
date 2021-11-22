@@ -62,6 +62,7 @@
     <Compile Include="Operation\Admin\StartStop.cs" />
     <Compile Include="Operation\ApplyEdits.cs" />
     <Compile Include="Operation\ArcGISServerOperation.cs" />
+    <Compile Include="Operation\QueryRelatedRecords.cs" />
     <Compile Include="Operation\CommonParameters.cs" />
     <Compile Include="Operation\CustomGeocode.cs" />
     <Compile Include="Operation\Find.cs" />
