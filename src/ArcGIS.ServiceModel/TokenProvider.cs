@@ -30,11 +30,11 @@
         /// <param name="serializer">Used to (de)serialize requests and responses</param>
         /// <param name="referer">Referer url to use for the token generation</param>
         /// <param name="cryptoProvider">Used to encrypt the token reuqest. If not set it will use the default from CryptoProviderFactory</param>
-        public TokenProvider(string rootUrl, string username, string password, ISerializer serializer = null, string referer = "", ICryptoProvider cryptoProvider = null)
-            : this (() => LogProvider.For<TokenProvider>(), rootUrl, username, password, serializer, referer, cryptoProvider)
+        public TokenProvider(string rootUrl, string username, string password, ISerializer serializer = null, string referer = "", ICryptoProvider cryptoProvider = null, Func<HttpClient> httpClientFunc = null)
+            : this (() => LogProvider.For<TokenProvider>(), rootUrl, username, password, serializer, referer, cryptoProvider,httpClientFunc)
         { }
 
-        internal TokenProvider(Func<ILog> log, string rootUrl, string username, string password, ISerializer serializer = null, string referer = "", ICryptoProvider cryptoProvider = null)
+        internal TokenProvider(Func<ILog> log, string rootUrl, string username, string password, ISerializer serializer = null, string referer = "", ICryptoProvider cryptoProvider = null, Func<HttpClient> httpClientFunc = null)
         {
             if (string.IsNullOrWhiteSpace(rootUrl)) throw new ArgumentNullException(nameof(rootUrl), "rootUrl is null.");
             if (string.IsNullOrWhiteSpace(username)) throw new ArgumentNullException(nameof(username), "username is null.");
@@ -44,7 +44,8 @@
             Guard.AgainstNullArgument("Serializer", Serializer);
             RootUrl = rootUrl.AsRootUrl();
             CryptoProvider = cryptoProvider ?? CryptoProviderFactory.Get();
-            _httpClient = HttpClientFactory.Get();
+            var httpFunc = httpClientFunc ?? HttpClientFactory.Get;
+            _httpClient = httpFunc();
             TokenRequest = new GenerateToken(username, password) { Referer = referer };
             UserName = username;
 

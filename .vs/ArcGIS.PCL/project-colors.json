@@ -1,0 +1,21 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "eba52c4d-2d08-4fe6-aa52-8118774b4362": {
+      "ProjectGuid": "eba52c4d-2d08-4fe6-aa52-8118774b4362",
+      "DisplayName": "ArcGIS.ServiceModel.NET",
+      "ColorIndex": 0
+    },
+    "45b4971c-48cf-4228-8543-ae0d3e278efd": {
+      "ProjectGuid": "45b4971c-48cf-4228-8543-ae0d3e278efd",
+      "DisplayName": "ArcGIS.ServiceModel.Android",
+      "ColorIndex": 1
+    },
+    "bd6d09f4-fcd7-4894-971b-87e6294393bc": {
+      "ProjectGuid": "bd6d09f4-fcd7-4894-971b-87e6294393bc",
+      "DisplayName": "ArcGIS.ServiceModel",
+      "ColorIndex": 2
+    }
+  },
+  "NextColorIndex": 3
+}

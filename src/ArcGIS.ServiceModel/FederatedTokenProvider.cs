@@ -26,11 +26,11 @@
         /// <param name="serverUrl"></param>
         /// <param name="serializer">Used to (de)serialize requests and responses</param>
         /// <param name="referer">Referer url to use for the token generation. For federated servers this will be the portal rootUrl</param>
-        public FederatedTokenProvider(ITokenProvider tokenProvider, string rootUrl, string serverUrl, ISerializer serializer = null, string referer = null)
-            : this(() => LogProvider.For<FederatedTokenProvider>(), tokenProvider, rootUrl, serverUrl, serializer, referer)
+        public FederatedTokenProvider(ITokenProvider tokenProvider, string rootUrl, string serverUrl, ISerializer serializer = null, string referer = null, Func<HttpClient> httpClientFunc = null)
+            : this(() => LogProvider.For<FederatedTokenProvider>(), tokenProvider, rootUrl, serverUrl, serializer, referer,httpClientFunc)
         { }
 
-        internal FederatedTokenProvider(Func<ILog> log, ITokenProvider tokenProvider, string rootUrl, string serverUrl, ISerializer serializer = null, string referer = null)
+        internal FederatedTokenProvider(Func<ILog> log, ITokenProvider tokenProvider, string rootUrl, string serverUrl, ISerializer serializer = null, string referer = null, Func<HttpClient> httpClientFunc = null)
         {
             Guard.AgainstNullArgument("tokenProvider", tokenProvider);
             if (string.IsNullOrWhiteSpace(rootUrl)) throw new ArgumentNullException("rootUrl", "rootUrl is null.");
@@ -40,7 +40,8 @@
             Guard.AgainstNullArgument("Serializer", Serializer);
 
             RootUrl = rootUrl.AsRootUrl();
-            _httpClient = HttpClientFactory.Get();
+            var httpFunc = httpClientFunc ?? HttpClientFactory.Get;
+            _httpClient = httpFunc();
             TokenRequest = new GenerateFederatedToken(serverUrl, tokenProvider) { Referer = referer };
 
             _logger = log() ?? LogProvider.For<FederatedTokenProvider>();

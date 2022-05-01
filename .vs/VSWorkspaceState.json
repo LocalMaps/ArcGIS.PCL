@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\src",
+    "\\src\\ArcGIS.ServiceModel"
   ],
-  "SelectedNode": "\\ArcGIS.Pcl.sln",
+  "SelectedNode": "\\src\\ArcGIS.ServiceModel\\TokenProvider.cs",
   "PreviewInSolutionExplorer": false
 }

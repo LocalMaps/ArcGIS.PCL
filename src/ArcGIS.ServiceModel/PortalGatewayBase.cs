@@ -24,6 +24,7 @@ using static ArcGIS.ServiceModel.Operation.QueryRelatedRecords;
         HttpClient _httpClient;
         protected IEndpoint GeometryServiceIEndpoint;
         readonly ILog _logger;
+        bool IWA;
 
         /// <summary>
         /// Create an ArcGIS Server gateway to access secure resources
@@ -32,12 +33,12 @@ using static ArcGIS.ServiceModel.Operation.QueryRelatedRecords;
         /// <param name="serializer">Used to (de)serialize requests and responses</param>
         /// <param name="tokenProvider">Provide access to a token for secure resources</param>
         /// <param name="httpClientFunc">Function that resolves to a HTTP client used to send requests</param>
-        public PortalGatewayBase(string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null)
+        public PortalGatewayBase(string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null,bool iwa =false)
             : this(() => LogProvider.For<PortalGatewayBase>(), rootUrl, serializer, tokenProvider, httpClientFunc)
         {           
         }
 
-        internal PortalGatewayBase(Func<ILog> log, string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null)
+        internal PortalGatewayBase(Func<ILog> log, string rootUrl, ISerializer serializer = null, ITokenProvider tokenProvider = null, Func<HttpClient> httpClientFunc = null,bool iwa=false)
         {
             if (string.IsNullOrWhiteSpace(rootUrl)) throw new ArgumentNullException("rootUrl", "rootUrl is null.");
 
@@ -48,7 +49,7 @@ using static ArcGIS.ServiceModel.Operation.QueryRelatedRecords;
             var httpFunc = httpClientFunc ?? HttpClientFactory.Get;
             _httpClient = httpFunc();
             MaximumGetRequestLength = 2047;
-
+            IWA= iwa;
             _logger = log() ?? LogProvider.For<PortalGatewayBase>();
             _logger.DebugFormat("Created new gateway for {0}", RootUrl);
         }
